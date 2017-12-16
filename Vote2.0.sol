@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "./StringUtils.sol";
+import "./stringUtils.sol";
 //import "https://github.com/ethereum/dapp-bin/library/stringUtils.sol";
 
 contract Ownership {
@@ -42,14 +42,14 @@ contract Vote is Ownership {
     }
 
     mapping (uint64 => Ballot) listOfBallots;
-    uint64 ballotsIndex = 1;
+    uint64 ballotsIndex = 0;
     mapping (uint64 => address) listOfAllowedAddresses;
     address[] lists;
     mapping (uint64 => address[]) ballotsAllowedAddresses;// allowed addresses for each ballot
-    uint64 listIndex = 1;
+    uint64 listIndex = 0;
 
-    function newAddressesList() public onlyOwner returns(uint64 listAddr) {
-        address newList = new AllowedAddresses();
+    function newAddressesList(address[] defaultAddresses) public onlyOwner returns(uint64 listAddr) {
+        address newList = new AllowedAddresses(defaultAddresses);
         listOfAllowedAddresses[listIndex] = newList;
         lists.push(newList);
         listIndex++;
@@ -77,6 +77,10 @@ contract Vote is Ownership {
     function getBallot(uint64 id) public constant returns (string name) {
       Ballot storage ballot = listOfBallots[id];
       return ballot.name;
+    }
+
+    function getBallotAddressesList(uint64 id) public constant returns (address[] votedAddressesList) {
+      return ballotsAllowedAddresses[id];
     }
 
     event variantAddedEvent(uint64 ballotId, string variantName);
@@ -115,8 +119,9 @@ contract Vote is Ownership {
 
     }
 
-    function getNumberOfVotes(uint64 ballotId, string variantName) public constant returns(uint64 votesNumber) {
+    function getNumberOfVotes(uint64 ballotId, uint64 variantId) public constant returns(uint64 votesNumber) {
       Ballot storage ballot = listOfBallots[ballotId];
+      string memory variantName = getVariant(ballotId, variantId);
       Variant storage variant = ballot.listOfVariants[variantName];
       return variant.numberOfVotes;
     }
@@ -144,9 +149,14 @@ contract Vote is Ownership {
 //------------------------------------------------------------------------------
 
 contract AllowedAddresses is Ownership {
-
+    function AllowedAddresses(address[] defaultAddresses) {
+      listOfAdresses = defaultAddresses;
+      for(uint16 i = 0; i < listOfAdresses.length; ++i) {
+          addresses[listOfAdresses[i]] = true;
+      }
+    }
     mapping (address => bool) addresses;// allow adresses for this list
-    address[] listOfAdresses = [];
+    address[] listOfAdresses;
 
 
     function addAddress(address addr) public {
@@ -171,5 +181,4 @@ contract AllowedAddresses is Ownership {
     function checkVoter(address addr) public constant returns(bool isVoter) {
         return addresses[addr];
     }
-
 }
