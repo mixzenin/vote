@@ -99,13 +99,15 @@ contract Vote is Ownership {
         require(!listOfBallots[ballotId].isVoted[msg.sender]);
         require(StringUtils.equal(listOfBallots[ballotId].listOfVariants[name].name, name));
         assert(listOfBallots[ballotId].endTime > now);
-        bool err = false;
+        bool notErr = false;
         for(uint64 i = 0; i < ballotsAllowedAddresses[ballotId].length; i++) {
             AllowedAddresses list = AllowedAddresses(ballotsAllowedAddresses[ballotId][i]);
-            if (list.checkVoter(msg.sender))
-                err = true;
+            if (list.checkVoter(msg.sender)){
+              notErr = true;
+              break;
+            }
         }
-        assert(err);
+        assert(notErr);
         listOfBallots[ballotId].isVoted[msg.sender] = true;
         listOfBallots[ballotId].votedAddressesList.push(msg.sender);
         listOfBallots[ballotId].listOfVariants[name].numberOfVotes++;
@@ -144,7 +146,7 @@ contract Vote is Ownership {
 contract AllowedAddresses is Ownership {
 
     mapping (address => bool) addresses;// allow adresses for this list
-    address[] listOfAdresses;
+    address[] listOfAdresses = [];
 
 
     function addAddress(address addr) public {
