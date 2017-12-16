@@ -20,9 +20,9 @@ contract Ownership {
 }
 
 contract Vote is Ownership {
-    
+
     function Vote() public {
-        
+
     }
 
     struct Variant {
@@ -36,7 +36,7 @@ contract Vote is Ownership {
       uint endTime;
       mapping (string => Variant) listOfVariants;
       string[] variantsNames;
-      mapping (address => bool) isVoted; 
+      mapping (address => bool) isVoted;
       address[] votedAddressesList;
 
     }
@@ -49,7 +49,7 @@ contract Vote is Ownership {
     uint64 listIndex = 1;
 
     function newAddressesList() public onlyOwner returns(uint64 listAddr) {
-        address newList = new AllowedAddresses(); 
+        address newList = new AllowedAddresses();
         listOfAllowedAddresses[listIndex] = newList;
         lists.push(newList);
         listIndex++;
@@ -58,7 +58,7 @@ contract Vote is Ownership {
     function getLists() public constant returns(address[] list) {
         return lists;
     }
-    
+
     event ballotAddedEvent(string name, uint64 id);
     function addBallot(string name, uint64[] allowedListId, uint duration) public onlyOwner { // TODO Is possible same name
       for(uint64 i = 0; i < allowedListId.length; i++) require(listOfAllowedAddresses[allowedListId[i]] != 0);
@@ -89,11 +89,11 @@ contract Vote is Ownership {
 
         variantAddedEvent(ballotId, name);
     }
-    
+
     function getVariant(uint64 ballotId, uint variantId) public constant returns(string name) {
         return listOfBallots[ballotId].variantsNames[variantId];
     }
-    
+
     event votedEvent(uint64 ballotId, string variantName, uint64 countOfVotes);
     function voting(uint64 ballotId, string name) public {
         require(!listOfBallots[ballotId].isVoted[msg.sender]);
@@ -102,7 +102,7 @@ contract Vote is Ownership {
         bool err = false;
         for(uint64 i = 0; i < ballotsAllowedAddresses[ballotId].length; i++) {
             AllowedAddresses list = AllowedAddresses(ballotsAllowedAddresses[ballotId][i]);
-            if (list.checkVoter(msg.sender)) 
+            if (list.checkVoter(msg.sender))
                 err = true;
         }
         assert(err);
@@ -123,17 +123,17 @@ contract Vote is Ownership {
         Ballot storage ballot = listOfBallots[ballotId];
         return ballot.votedAddressesList;
     }
-    
+
     function getWinnerInVoting(uint64 ballotId) public constant returns (uint16 countOfVotes) {
         Ballot storage ballot = listOfBallots[ballotId];
         uint16 maximum;
-        for (uint16 i = 0; i < ballot.variantsNames.length; i++) 
+        for (uint16 i = 0; i < ballot.variantsNames.length; i++)
             if(ballot.listOfVariants[ballot.variantsNames[i]].numberOfVotes > maximum) {
                 maximum = ballot.listOfVariants[ballot.variantsNames[i]].numberOfVotes;
             }
         return (maximum);
     }
-    
+
     function getCountOfVariants(uint64 ballotId) public constant returns(uint countOfVariants) {
         return listOfBallots[ballotId].variantsNames.length;
     }
@@ -142,27 +142,32 @@ contract Vote is Ownership {
 //------------------------------------------------------------------------------
 
 contract AllowedAddresses is Ownership {
-    
+
     mapping (address => bool) addresses;// allow adresses for this list
     address[] listOfAdresses;
-    
-    
+
+
     function addAddress(address addr) public {
         addresses[addr] = true;
         listOfAdresses.push(addr);
     }
-    
+
     function deleteAddress(address addr) public {
         addresses[addr] = false;
+        for(uint16 i = 0; i < listOfAdresses.length; ++i) {
+          if (addr == listOfAdresses[i]) {
+            delete listOfAdresses[i];
+            break;
+          }
+        }
     }
-    
+
     function getAdresses() public constant returns(address[] addr) {
         return listOfAdresses;
     }
-    
+
     function checkVoter(address addr) public constant returns(bool isVoter) {
         return addresses[addr];
     }
-    
-}
 
+}
