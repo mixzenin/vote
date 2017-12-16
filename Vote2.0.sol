@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "./stringUtils.sol";
+import "./StringUtils.sol";
 //import "https://github.com/ethereum/dapp-bin/library/stringUtils.sol";
 
 contract Ownership {
@@ -66,8 +66,6 @@ contract Vote is Ownership {
       listOfBallots[ballotsIndex].name = name;
       listOfBallots[ballotsIndex].endTime = now + duration*3600;
       for(i = 0; i < allowedListId.length; i++) {
-        AllowedAddresses addr = AllowedAddresses(listOfAllowedAddresses[allowedListId[i]]);//connect contract
-        addr.addAddress(msg.sender);
         ballotsAllowedAddresses[ballotsIndex].push(listOfAllowedAddresses[allowedListId[i]]);
       }
       ballotAddedEvent(name, ballotsIndex);
