@@ -56,14 +56,14 @@ Inputs:
 ---
 
 ```
-function getNumberOfVotes(uint64 ballotId, string variantName) public constant returns(uint64 votesNumber)
+function getNumberOfVotes(uint64 ballotId, uint64 variantId) public constant returns(uint64 votesNumber)
 ```
 
 Shows count of votes for specific variant
 
 Inputs:
 * Voting id
-* Variant name
+* Variant id
 
 ---
 
@@ -137,6 +137,20 @@ Inputs:
 
 Outputs:
 * Voting name
+
+---
+
+
+```
+function getBallotAddressesList(uint64 id) public constant returns (address[] votedAddressesList)
+```
+Shows connected addresses lists
+
+Inputs:
+* Voting id
+
+Outputs:
+* Connected adresses list
 
 ---
 
