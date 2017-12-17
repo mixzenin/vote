@@ -78,9 +78,9 @@ Inputs:
 ---
 
 ```
-function getWinnerInVoting(uint64 ballotId) public constant returns (uint16 countOfVotes)
+function getWinnerInVoting(uint64 ballotId) public constant returns (uint64[] winners)
 ```
-Shows the winner of a particular vote
+Shows the winner's id of a particular vote
 
 Inputs:
 * Voting id
