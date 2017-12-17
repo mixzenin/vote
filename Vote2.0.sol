@@ -38,6 +38,7 @@ contract Vote is Ownership {
       string[] variantsNames;
       mapping (address => bool) isVoted;
       address[] votedAddressesList;
+      uint64[] winnersId;
 
     }
 
@@ -129,14 +130,18 @@ contract Vote is Ownership {
         return ballot.votedAddressesList;
     }
 
-    function getWinnerInVoting(uint64 ballotId) public constant returns (uint16 countOfVotes) {
+    function getWinnerInVoting(uint64 ballotId) public constant returns (uint64[] winners) {
         Ballot storage ballot = listOfBallots[ballotId];
         uint16 maximum;
         for (uint16 i = 0; i < ballot.variantsNames.length; i++)
             if(ballot.listOfVariants[ballot.variantsNames[i]].numberOfVotes > maximum) {
                 maximum = ballot.listOfVariants[ballot.variantsNames[i]].numberOfVotes;
             }
-        return (maximum);
+        for (i = 0; i < ballot.variantsNames.length; i++)
+            if(ballot.listOfVariants[ballot.variantsNames[i]].numberOfVotes == maximum) {
+                ballot.winnersId.push(i);
+            }
+        return (ballot.winnersId);
     }
 
     function getCountOfVariants(uint64 ballotId) public constant returns(uint countOfVariants) {
@@ -147,7 +152,7 @@ contract Vote is Ownership {
 //------------------------------------------------------------------------------
 
 contract AllowedAddresses is Ownership {
-    function AllowedAddresses(address[] defaultAddresses) {
+    function AllowedAddresses(address[] defaultAddresses) public {
       listOfAdresses = defaultAddresses;
       for(uint16 i = 0; i < listOfAdresses.length; ++i) {
           addresses[listOfAdresses[i]] = true;
